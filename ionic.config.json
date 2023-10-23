@@ -1,0 +1,7 @@
+{
+  "name": "MakePizza",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "angular"
+}
