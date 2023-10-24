@@ -1,0 +1,26 @@
+import { Injectable } from '@angular/core';
+import { HttpInterceptor, HttpRequest, HttpHandler, HttpEvent } from '@angular/common/http';
+import { Observable } from 'rxjs';
+import { environment } from 'src/environments/environment';
+ 
+@Injectable()
+export class AuthInterceptor implements HttpInterceptor {
+
+  intercept(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
+    let url = req.url;
+    let rutasSinToken = ['api/v1/customers', 'api/v1/auth/authenticate']
+    console.log(url);
+    if(!rutasSinToken.includes(url)) {
+        let token = localStorage.getItem(environment.headerToken);
+        console.log(token);
+        if(token != null) {
+            token = 'Bearer ' + token;
+            // Clone the request and set the new header in one step.
+            const authReq = req.clone({headers: req.headers.set('Authorization', token)});
+            // send the newly created request
+            return next.handle(authReq);
+        }
+    }
+    return next.handle(req);
+  }
+}

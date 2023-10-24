@@ -1,0 +1,86 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button></ion-back-button>
+    </ion-buttons>
+    <ion-title>Register</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <form [formGroup]="formUser" (ngSubmit)="saveUser()" novalidate>
+    <ion-item lines="full">
+      <ion-label position="floating">Nombre</ion-label>
+      <ion-input type="text" formControlName="name" required></ion-input>
+    </ion-item>
+    <div
+      *ngIf="this.formUser.controls['name'].touched && this.formUser.controls['name'].invalid"
+    >
+      <div
+        class="ion-padding"
+        *ngIf="this.formUser.controls['name'].errors?.['required']"
+      >
+        <ion-text color="danger">Name is required.</ion-text>
+      </div>
+      <div
+        class="ion-padding"
+        color="danger"
+        *ngIf="this.formUser.controls['name'].errors?.['minlength']"
+      >
+        <ion-text color="danger">Name should be min 2 chars long.</ion-text>
+      </div>
+    </div>
+
+    <ion-item lines="full">
+      <ion-label position="floating">Correo</ion-label>
+      <ion-input type="email" formControlName="username" required></ion-input>
+    </ion-item>
+    <div
+      *ngIf="this.formUser.controls['username'].touched && this.formUser.controls['username'].invalid"
+    >
+      <div
+        class="error ion-padding"
+        *ngIf="errorControl['username'].errors?.['required']"
+      >
+        <ion-text color="danger">Email is required.</ion-text>
+      </div>
+      <div class="ion-padding" *ngIf="errorControl['username'].errors?.['pattern']">
+        <ion-text color="danger">Please provide valid email.</ion-text>
+      </div>
+    </div>
+    <ion-item lines="full">
+      <ion-label position="floating">Contraseña</ion-label>
+      <ion-input type="password" formControlName="password" required></ion-input>
+    </ion-item>
+    <div
+      *ngIf="this.formUser.controls['password'].touched && this.formUser.controls['password'].invalid"
+    >
+      <div
+        class="error ion-padding"
+        *ngIf="errorControl['password'].errors?.['required']"
+      >
+        <ion-text color="danger">Email is required.</ion-text>
+      </div>
+      <div
+        class="ion-padding"
+        color="danger"
+        *ngIf="this.formUser.controls['password'].errors?.['minlength']"
+      >
+        <ion-text color="danger">Name should be min 5 chars long.</ion-text>
+      </div>
+      <div class="ion-padding" *ngIf="errorControl['password'].errors?.['pattern']">
+        <ion-text color="danger">Please provide valid email.</ion-text>
+      </div>
+    </div>
+    <ion-item lines="full">
+      <ion-label position="floating">Repetir contraseña</ion-label>
+      <ion-input type="password" formControlName="repeatedPassword" required></ion-input>
+    </ion-item>
+
+    <ion-row>
+      <ion-col>
+        <ion-button type="submit" color="danger" [disabled]="!formUser.valid" expand="block">Registrarse</ion-button>
+      </ion-col>
+    </ion-row>
+  </form>
+</ion-content>
