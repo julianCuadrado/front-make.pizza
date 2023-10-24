@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
+import { TokenService } from 'src/app/services/token.service';
 import { UserService } from 'src/app/services/user.service';
-import { environment } from 'src/environments/environment';
 
 @Component({
   selector: 'app-login',
@@ -14,7 +14,8 @@ export class LoginPage implements OnInit {
 
   constructor(
     public formBuilder: FormBuilder,
-    public userService: UserService) { }
+    public userService: UserService,
+    public tokenService: TokenService) { }
 
   ngOnInit() {
     this.formLogin = this.formBuilder.group({
@@ -28,7 +29,7 @@ export class LoginPage implements OnInit {
       this.userService.authenticate(this.formLogin.value)
       .subscribe({
         next: (resp: any) => {
-          localStorage.setItem(environment.headerToken, resp.jwt);
+          this.tokenService.login(resp.jwt);
         },
         error: (error) => {
           alert(error.error.message);

@@ -9,8 +9,7 @@ export class AuthInterceptor implements HttpInterceptor {
   intercept(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
     let url = req.url;
     let rutasSinToken = ['api/v1/customers', 'api/v1/auth/authenticate']
-    console.log(url);
-    if(!rutasSinToken.includes(url)) {
+    if(!this.verificarUrlsExcluidas(url, rutasSinToken)) {
         let token = localStorage.getItem(environment.headerToken);
         console.log(token);
         if(token != null) {
@@ -22,5 +21,10 @@ export class AuthInterceptor implements HttpInterceptor {
         }
     }
     return next.handle(req);
+  }
+
+  verificarUrlsExcluidas(url:string, urlsExcluidas: string[]):boolean {
+    let index = urlsExcluidas.findIndex((element) => url.includes(element));
+    return index !== -1;
   }
 }

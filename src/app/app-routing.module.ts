@@ -1,5 +1,6 @@
 import { NgModule } from '@angular/core';
 import { PreloadAllModules, RouterModule, Routes } from '@angular/router';
+import { IsLoggedInGuard } from './auth/guards/is-logged-in.guard';
 
 const routes: Routes = [
   {
@@ -18,6 +19,11 @@ const routes: Routes = [
   {
     path: 'register',
     loadChildren: () => import('./components/auth/register/register.module').then( m => m.RegisterPageModule)
+  },
+  {
+    path: 'back-office',
+    canLoad: [IsLoggedInGuard],
+    loadChildren: () => import('./components/back-office/back-office.module').then( m => m.BackOfficePageModule)
   },
 ];
 

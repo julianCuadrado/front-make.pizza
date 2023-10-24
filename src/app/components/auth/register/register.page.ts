@@ -1,8 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
-import { SaveUserDTO } from 'src/app/models/save-user';
+import { TokenService } from 'src/app/services/token.service';
 import { UserService } from 'src/app/services/user.service';
-import { environment } from 'src/environments/environment';
 
 @Component({
   selector: 'app-register',
@@ -15,7 +14,8 @@ export class RegisterPage implements OnInit {
 
   constructor(
     public formBuilder: FormBuilder,
-    public userService: UserService) { }
+    public userService: UserService,
+    public tokenService: TokenService) { }
 
   ngOnInit() {
     this.formUser = this.formBuilder.group({
@@ -42,7 +42,7 @@ export class RegisterPage implements OnInit {
       this.userService.saveUser(this.formUser.value)
       .subscribe({
         next: (resp: any) => {
-          localStorage.setItem(environment.headerToken, resp.jwt);
+          this.tokenService.login(resp.jwt);
         },
         error: (error) => {
           console.log(error);
