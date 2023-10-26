@@ -1,13 +1,29 @@
 import { NgModule } from '@angular/core';
 import { Routes, RouterModule } from '@angular/router';
+import { BackOfficeLayoutComponent } from './back-office-layout/back-office-layout.component';
 
-import { BackOfficePage } from './back-office.page';
 
 const routes: Routes = [
   {
     path: '',
-    component: BackOfficePage
+    pathMatch: 'full',
+    redirectTo: 'pedido',
+  },
+  {
+    path: '',
+    component: BackOfficeLayoutComponent,
+    children: [
+      {
+        path: 'pedido',
+        loadChildren: () => import('./pedido/pedido.module').then( m => m.PedidoPageModule)
+      },
+      {
+        path: 'mis-pedidos',
+        loadChildren: () => import('./mis-pedidos/mis-pedidos.module').then( m => m.MisPedidosPageModule)
+      }
+    ]
   }
+ 
 ];
 
 @NgModule({

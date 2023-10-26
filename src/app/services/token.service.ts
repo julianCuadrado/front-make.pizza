@@ -43,7 +43,7 @@ export class TokenService {
   logout(): void {
     this.removeUserFromLocalStorage();
     this.user.next(null);
-    this.router.navigateByUrl('/login');
+    this.router.navigateByUrl('/');
   }
 
   private redirectToDashboard(): void {
@@ -56,7 +56,7 @@ export class TokenService {
 
   private decodeToken(userToken: string): UserWithToken {
     const userInfo = JSON.parse(window.atob(userToken)) as User;
-
+    
     return { ...userInfo, token: userToken };
   }
 

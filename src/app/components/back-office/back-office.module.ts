@@ -1,20 +1,21 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
 
-import { IonicModule } from '@ionic/angular';
+import { IonicModule, IonicRouteStrategy } from '@ionic/angular';
 
 import { BackOfficePageRoutingModule } from './back-office-routing.module';
-
-import { BackOfficePage } from './back-office.page';
+import { BackOfficeLayoutComponent } from './back-office-layout/back-office-layout.component';
+import { FormsModule } from '@angular/forms';
+import { ArmarPedidoComponent } from './armar-pedido/armar-pedido.component';
 
 @NgModule({
+  declarations: [BackOfficeLayoutComponent, ArmarPedidoComponent],
   imports: [
     CommonModule,
     FormsModule,
-    IonicModule,
+    IonicModule.forRoot(),
     BackOfficePageRoutingModule
   ],
-  declarations: [BackOfficePage]
+  
 })
 export class BackOfficePageModule {}

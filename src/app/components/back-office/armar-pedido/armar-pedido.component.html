@@ -1,0 +1,63 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-button (click)="cancel()">
+        <ion-icon name="arrow-back-outline"></ion-icon>
+      </ion-button>      
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+<ion-content class="ion-padding">
+  <h1>{{product.name}}</h1>
+  <h4>{{product.price | currency}}</h4>
+  <ion-img [src]="product.urlImage"
+  ></ion-img>
+  <p>{{product.description}}</p>
+
+  <div *ngIf="!esPersonalizada">
+    <h3>Ingredientes:</h3>
+    <ul>
+      <li *ngFor="let i of product.ingredients">
+        {{i.name}}
+      </li>
+    </ul>
+  </div>
+
+  <div *ngIf="esPersonalizada">
+    <h3>Selecciona los ingredientes:</h3>
+    <ion-list>
+      <ion-item *ngFor="let ingredient of ingredients">
+        <ion-checkbox justify="start" labelPlacement="end">
+          {{ingredient.name}} <br> {{ingredient.price | currency}}
+        </ion-checkbox>
+      </ion-item>
+    </ion-list>
+  </div>
+  
+  <ion-input [(ngModel)]="cantidadPizzas" label="Cantidad pizzas" type="number" fill="outline" placeholder="0"></ion-input>
+
+  <div>
+    <h3>Bebidas</h3>
+    <ion-list>
+      <ion-item *ngFor="let bebida of bebidas">
+        <ion-checkbox [(ngModel)]="bebida.selected" justify="start" labelPlacement="end">
+          {{bebida.name}} <br> {{bebida.price | currency}}
+        </ion-checkbox>
+      </ion-item>
+    </ion-list>
+  </div>
+
+  <div>
+    <h3>Adicionales</h3>
+    <ion-list>
+      <ion-item *ngFor="let adicional of adicionales">
+        <ion-checkbox [(ngModel)]="adicional.selected" justify="start" labelPlacement="end">
+          {{adicional.description}} <br>{{adicional.price | currency}}
+        </ion-checkbox>
+      </ion-item>
+    </ion-list>
+  </div>
+</ion-content>
+<ion-footer>
+  <ion-button  (click)="confirm()" expand="full">Añadir pedido</ion-button>
+</ion-footer>

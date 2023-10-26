@@ -3,7 +3,7 @@
     <ion-buttons slot="start">
       <ion-back-button></ion-back-button>
     </ion-buttons>
-    <ion-title>Register</ion-title>
+    <ion-title>Registrarse</ion-title>
   </ion-toolbar>
 </ion-header>
 
@@ -20,14 +20,14 @@
         class="ion-padding"
         *ngIf="this.formUser.controls['name'].errors?.['required']"
       >
-        <ion-text color="danger">Name is required.</ion-text>
+        <ion-text color="danger">Obligatorio.</ion-text>
       </div>
       <div
         class="ion-padding"
         color="danger"
         *ngIf="this.formUser.controls['name'].errors?.['minlength']"
       >
-        <ion-text color="danger">Name should be min 2 chars long.</ion-text>
+        <ion-text color="danger">Minimo 2 caracteres.</ion-text>
       </div>
     </div>
 
@@ -42,10 +42,10 @@
         class="error ion-padding"
         *ngIf="errorControl['username'].errors?.['required']"
       >
-        <ion-text color="danger">Email is required.</ion-text>
+        <ion-text color="danger">Obligatorio.</ion-text>
       </div>
       <div class="ion-padding" *ngIf="errorControl['username'].errors?.['pattern']">
-        <ion-text color="danger">Please provide valid email.</ion-text>
+        <ion-text color="danger">Correo invalido.</ion-text>
       </div>
     </div>
     <ion-item lines="full">
@@ -59,17 +59,17 @@
         class="error ion-padding"
         *ngIf="errorControl['password'].errors?.['required']"
       >
-        <ion-text color="danger">Email is required.</ion-text>
+        <ion-text color="danger">Obligatorio.</ion-text>
       </div>
       <div
         class="ion-padding"
         color="danger"
         *ngIf="this.formUser.controls['password'].errors?.['minlength']"
       >
-        <ion-text color="danger">Name should be min 5 chars long.</ion-text>
+        <ion-text color="danger">Minimo 5 caracteres.</ion-text>
       </div>
       <div class="ion-padding" *ngIf="errorControl['password'].errors?.['pattern']">
-        <ion-text color="danger">Please provide valid email.</ion-text>
+        <ion-text color="danger">Contraseña invalida. (Minimo una letra minuscula, Minimo una letra mayuscula, Minimo un numero)</ion-text>
       </div>
     </div>
     <ion-item lines="full">

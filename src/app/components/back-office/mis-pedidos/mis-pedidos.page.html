@@ -1,0 +1,44 @@
+<ion-header [translucent]="true">
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-menu-button></ion-menu-button>
+    </ion-buttons>
+    <ion-title>Mis Pedidos</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true">
+  <ion-grid *ngIf="currentOrder">
+    <ion-row>
+      <ion-col>Cantidad</ion-col>
+      <ion-col>Producto</ion-col>
+      <ion-col>Valor</ion-col>
+    </ion-row>
+    <ion-row *ngFor="let item of currentOrder?.items">
+      <ion-col>{{item.amount}}</ion-col>
+      <ion-col>{{item.product.name}}</ion-col>
+      <ion-col>{{item.product.price * item.amount | currency}}</ion-col>
+    </ion-row>
+  </ion-grid>
+</ion-content>
+<ion-footer *ngIf="currentOrder">
+  <ion-grid>
+    <ion-row style="font-size: 1.5em;">
+      <ion-col>Total:</ion-col>
+      <ion-col class="ion-text-right">{{total | currency}}</ion-col>
+    </ion-row>
+  </ion-grid>
+  
+  <ion-grid style="padding: 0 !important;">
+    <ion-row style="padding: 0 !important;">
+      <ion-col style="padding: 0 !important;">
+        <ion-button (click)="cancel()" color="danger" expand="full">Cancelar</ion-button>
+      </ion-col>
+      <ion-col style="padding: 0 !important;">
+        <ion-button (click)="confirm()" expand="full">Comprar</ion-button>      
+      </ion-col>
+    </ion-row>
+  </ion-grid>
+    
+  
+</ion-footer>

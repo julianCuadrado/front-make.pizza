@@ -1,0 +1,27 @@
+<ion-header [translucent]="true">
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-menu-button></ion-menu-button>
+    </ion-buttons>
+    <ion-title>pedido</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true">
+  <ion-header collapse="condense">
+    <ion-toolbar>
+      <ion-title size="large">pedido</ion-title>
+    </ion-toolbar>
+  </ion-header>
+  <ion-card *ngFor="let p of listaPizzas" (click)="openModal(p)">
+    <img alt="Silhouette of mountains" [src]="p.urlImage" />
+    <ion-card-header>
+      <ion-card-title>{{p.name}}</ion-card-title>
+      <ion-card-subtitle>{{p.description}}</ion-card-subtitle>
+    </ion-card-header>
+  
+    <ion-card-content>
+      Precio: {{p.price}}
+    </ion-card-content>
+  </ion-card>
+</ion-content>

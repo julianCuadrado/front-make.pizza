@@ -11,7 +11,6 @@ export class AuthInterceptor implements HttpInterceptor {
     let rutasSinToken = ['api/v1/customers', 'api/v1/auth/authenticate']
     if(!this.verificarUrlsExcluidas(url, rutasSinToken)) {
         let token = localStorage.getItem(environment.headerToken);
-        console.log(token);
         if(token != null) {
             token = 'Bearer ' + token;
             // Clone the request and set the new header in one step.
