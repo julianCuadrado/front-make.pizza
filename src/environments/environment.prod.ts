@@ -1,5 +1,6 @@
 export const environment = {
   production: true,
-  urlBackend: 'http://ec2-3-95-57-12.compute-1.amazonaws.com:443/api/v1/',
-  headerToken: 'token_pizza'
+  urlBackend: 'https://265b-181-54-61-182.ngrok-free.app/api/v1/',
+  headerToken: 'token_pizza',
+  apiKeyGoogleMaps: 'AIzaSyDKiZItTUfrtSRIJd0a8Uc7pJaCSNEX3mk'
 };

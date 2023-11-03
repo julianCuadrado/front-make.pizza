@@ -5,7 +5,8 @@
 export const environment = {
   production: false,
   urlBackend: 'http://localhost:9191/api/v1/',
-  headerToken: 'token_pizza'
+  headerToken: 'token_pizza',
+  apiKeyGoogleMaps: 'AIzaSyDKiZItTUfrtSRIJd0a8Uc7pJaCSNEX3mk'
 };
 
 /*

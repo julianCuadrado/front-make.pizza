@@ -14,7 +14,10 @@ export class AuthInterceptor implements HttpInterceptor {
         if(token != null) {
             token = 'Bearer ' + token;
             // Clone the request and set the new header in one step.
-            const authReq = req.clone({headers: req.headers.set('Authorization', token)});
+            const authReq = req.clone({
+              setHeaders: { 'Authorization': token ,
+                          'ngrok-skip-browser-warning':  '1'}
+            });
             // send the newly created request
             return next.handle(authReq);
         }
