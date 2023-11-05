@@ -44,4 +44,12 @@ export class ProductService {
   getCurrentOrder(): Observable<Pedido> {
     return this.http.get<Pedido>(this.urlBase + 'orders');
   }
+
+  processPay(pay: any): Observable<any> {
+    return this.http.post(this.urlBase+ 'paypal', pay);
+  }
+
+  getBills(): Observable<any> {
+    return this.http.get<any>(this.urlBase + 'bills');
+  }
 }

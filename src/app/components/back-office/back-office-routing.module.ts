@@ -20,6 +20,18 @@ const routes: Routes = [
       {
         path: 'mis-pedidos',
         loadChildren: () => import('./mis-pedidos/mis-pedidos.module').then( m => m.MisPedidosPageModule)
+      },
+      {
+        path: 'pasarela-paypal',
+        loadChildren: () => import('./pasarela-paypal/pasarela-paypal.module').then( m => m.PasarelaPaypalPageModule)
+      },
+      {
+        path: 'resultado-pago',
+        loadChildren: () => import('./resultado-pago/resultado-pago.module').then( m => m.ResultadoPagoPageModule)
+      },
+      {
+        path: 'pedidos-pendientes',
+        loadChildren: () => import('./pedidos-pendientes/pedidos-pendientes.module').then( m => m.PedidosPendientesPageModule)
       }
     ]
   }

@@ -9,6 +9,8 @@ export class Pedido {
     longitude!: number;
     latitude!: number;
     enabled!: boolean;
+    total?: number;
+    direction?: string;
 
     agregarItem(product: Product, cantidad: number) {
         let item = new Item();

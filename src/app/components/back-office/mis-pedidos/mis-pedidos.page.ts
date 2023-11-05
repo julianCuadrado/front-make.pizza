@@ -9,6 +9,7 @@ import { GeoLocation } from 'src/app/models/geolocation';
 import { ConfirmDirectionComponent } from '../confirm-direction/confirm-direction.component';
 import { Product } from 'src/app/models/product';
 import { Item } from 'src/app/models/item';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-mis-pedidos',
@@ -24,12 +25,13 @@ export class MisPedidosPage implements OnInit {
 
   @ViewChild('modal') modal!: IonModal;
 
-  basePriceKMByOrder: number = 500;
+  basePriceKMByOrder: number = 0.13;
   currentOrder!: Pedido | undefined;
   total: number = 0;
   directionSelected: any;
   isSelectedDirection: boolean = false;
   lastMarkerId?: string;
+  direction!: string;
   markerShop: Marker = 
       {
         coordinate: {
@@ -42,7 +44,8 @@ export class MisPedidosPage implements OnInit {
 
   constructor(
     private productService: ProductService,
-    private modalCtrl: ModalController
+    private modalCtrl: ModalController,
+    private router: Router
   ) { }
 
   ngOnInit() {
@@ -75,6 +78,10 @@ export class MisPedidosPage implements OnInit {
   }
 
   aproveCaptureDirection() {
+    if(!this.direction || !this.direction.trim().length) {
+      alert('Ingrese la dirección');
+      return;
+    }
     if(this.currentOrder) {
       this.isSelectedDirection = true;
       let quantityMeters = this.haversine_distance(this.markerShop, this.directionSelected);
@@ -96,9 +103,10 @@ export class MisPedidosPage implements OnInit {
         valorUnitario: this.basePriceKMByOrder
       }
       this.currentOrder.items.push(item);
-      this.total += quantityMeters * this.basePriceKMByOrder;
+      this.total += Number((quantityMeters * this.basePriceKMByOrder).toFixed(1));
       this.currentOrder.latitude = this.directionSelected.coordinate.lat;
       this.currentOrder.longitude = this.directionSelected.coordinate.lng;
+      this.currentOrder.direction = this.direction;
     }
     this.modal.dismiss(null, 'confirm');
   }
@@ -121,7 +129,7 @@ export class MisPedidosPage implements OnInit {
       this.newMap = map;
       this.addMarkers();
     }, (error) => {
-      console.log(error);
+      alert(JSON.stringify(error));
     });
   }
 
@@ -187,7 +195,14 @@ export class MisPedidosPage implements OnInit {
     return this.basePriceKMByOrder * distance;
   }
 
-  confirm() {
-
+  async confirm() {
+    if(this.currentOrder) {
+      this.currentOrder.total = this.total;
+      this.router.navigateByUrl('/back-office/pasarela-paypal', { state: {
+        order: this.currentOrder
+      }});
+    } else {
+      alert('Debe seleccionar un pedido.');
+    }
   }
 }

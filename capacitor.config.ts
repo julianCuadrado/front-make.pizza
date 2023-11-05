@@ -1,16 +1,11 @@
 import { CapacitorConfig } from '@capacitor/cli';
 
 const config: CapacitorConfig = {
-  appId: 'io.ionic.starter',
+  appId: 'co.pizza.make',
   appName: 'MakePizza',
   webDir: 'www',
   server: {
     androidScheme: 'https'
-  },
-  plugins: {
-    "GoogleMaps": {
-      "apiKey": "AIzaSyDKiZItTUfrtSRIJd0a8Uc7pJaCSNEX3mk"
-    }
   }
 };
 

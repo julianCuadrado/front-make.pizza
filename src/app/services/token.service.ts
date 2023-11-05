@@ -47,7 +47,11 @@ export class TokenService {
   }
 
   private redirectToDashboard(): void {
-    this.router.navigateByUrl('/back-office');
+    if(this.user.value && this.user.value.role === 'CUSTOMER') {
+      this.router.navigateByUrl('/back-office');
+    } else {
+      this.router.navigateByUrl('/back-office/pedidos-pendientes');
+    }
   }
 
   private pushNewUser(token: string) {
