@@ -1,8 +1,9 @@
 import { Component, OnInit } from '@angular/core';
-import { ModalController } from '@ionic/angular';
+import { AlertController, LoadingController, ModalController } from '@ionic/angular';
 import { Product } from 'src/app/models/product';
 import { ProductService } from 'src/app/services/product.service';
 import { ArmarPedidoComponent } from '../armar-pedido/armar-pedido.component';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-pedido',
@@ -15,15 +16,39 @@ export class PedidoPage implements OnInit {
 
   constructor(
     private productService: ProductService,
-    private modalCtrl: ModalController) { }
+    private modalCtrl: ModalController,
+    private loadingCtrl: LoadingController,
+    private alertController: AlertController,
+    private router: Router) { }
 
   ngOnInit() {
+   this.loadDataPage(); 
+  }
+
+  async loadDataPage() {
+    await this.showLoading();
     this.productService.getAllPizzas()
     .subscribe({
       next: (resp: Product[]) => {
+        this.closeLoading();
         this.listaPizzas = resp;
       },
       error: (error) => {
+        this.closeLoading();
+        alert(error.error.message);
+      }
+    });
+  }
+
+  handleRefresh(event: any) {
+    this.productService.getAllPizzas()
+    .subscribe({
+      next: (resp: Product[]) => {
+        event.target.complete();
+        this.listaPizzas = resp;
+      },
+      error: (error) => {
+        event.target.complete();
         alert(error.error.message);
       }
     });
@@ -41,8 +66,40 @@ export class PedidoPage implements OnInit {
     const { data, role } = await modal.onWillDismiss();
 
     if (role === 'confirm') {
-       console.log(data);
-       
+      this.presentAlertOrder();
     }
+  }
+
+  async showLoading() {
+    const loading = await this.loadingCtrl.create({
+      message: 'Cargando...',
+      id: 'loadId'
+    });
+    loading.present();
+  }
+
+  async closeLoading() {
+    return await this.loadingCtrl.dismiss('loadId');
+  }
+
+  async presentAlertOrder() {
+    const alert = await this.alertController.create({
+      header: 'Pedido agregado con exito.',
+      subHeader: '¿Desea ir a mis pedidos?',
+      buttons: [{
+        text: 'Seguir pidiendo',
+        role: 'cancel',
+        cssClass: 'alert-button-cancel'
+      },{
+        text: 'Si',
+        role: 'confirm',
+        cssClass: 'alert-button-confirm',
+        handler: () => {
+          this.router.navigateByUrl('back-office/mis-pedidos');
+        }
+      }],
+    });
+
+    await alert.present();
   }
 }

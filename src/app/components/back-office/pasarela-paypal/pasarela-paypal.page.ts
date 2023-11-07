@@ -1,5 +1,6 @@
 import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import { Router } from '@angular/router';
+import { LoadingController } from '@ionic/angular';
 import { PayPalOrder } from 'src/app/models/ResultPayPal';
 import { ProductService } from 'src/app/services/product.service';
 
@@ -17,7 +18,8 @@ export class PasarelaPaypalPage implements OnInit {
 
   constructor(
     private router: Router,
-    private productService: ProductService
+    private productService: ProductService,
+    private loadingCtrl: LoadingController
   ) { }
 
   ngOnInit() {
@@ -57,7 +59,7 @@ export class PasarelaPaypalPage implements OnInit {
               this.processPay(result);
             }
             else {
-              //Status not completed...
+              alert('Transacción no completada');
             }
           })
           .catch((err:any) => {
@@ -71,7 +73,12 @@ export class PasarelaPaypalPage implements OnInit {
     .render(this.paypalElement.nativeElement);
   }
 
-  processPay(result: PayPalOrder) {
+  toFixed(amount: number, basePrice: number) {
+    return Number((amount * basePrice).toFixed(1));
+  }
+
+  async processPay(result: PayPalOrder) {
+    await this.showLoading();
     let pay = {
       payPalOrder: result,
       order: this.order
@@ -79,11 +86,25 @@ export class PasarelaPaypalPage implements OnInit {
     this.productService.processPay(pay)
     .subscribe({
       next: (resp: any) => {
+        this.closeLoading();
         this.router.navigateByUrl('back-office/resultado-pago');
       },
       error: (error) => {
+        this.closeLoading();
         alert(error.error.message);
       }
     });
+  }
+
+  async showLoading() {
+    const loading = await this.loadingCtrl.create({
+      message: 'Procesando pago...',
+      id: 'loadId'
+    });
+    loading.present();
+  }
+
+  async closeLoading() {
+    return await this.loadingCtrl.dismiss('loadId');
   }
 }

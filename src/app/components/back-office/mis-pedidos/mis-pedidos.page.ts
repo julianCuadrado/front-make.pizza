@@ -1,15 +1,15 @@
 import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import { Pedido } from 'src/app/models/pedido';
 import { ProductService } from 'src/app/services/product.service';
-import { GoogleMap, Marker } from '@capacitor/google-maps';
 import { OverlayEventDetail } from '@ionic/core/components';
 import { environment } from 'src/environments/environment';
-import { IonModal, ModalController } from '@ionic/angular/common';
+import { IonModal, LoadingController, ModalController } from '@ionic/angular/common';
 import { GeoLocation } from 'src/app/models/geolocation';
-import { ConfirmDirectionComponent } from '../confirm-direction/confirm-direction.component';
 import { Product } from 'src/app/models/product';
 import { Item } from 'src/app/models/item';
 import { Router } from '@angular/router';
+import { SelectDirectionComponent } from '../select-direction/select-direction.component';
+import { forkJoin } from 'rxjs';
 
 @Component({
   selector: 'app-mis-pedidos',
@@ -19,49 +19,66 @@ import { Router } from '@angular/router';
 
 export class MisPedidosPage implements OnInit {
 
-  @ViewChild('map')
-  mapRef!: ElementRef<HTMLElement>;
-  newMap!: GoogleMap;
-
   @ViewChild('modal') modal!: IonModal;
 
   basePriceKMByOrder: number = 0.13;
   currentOrder!: Pedido | undefined;
   total: number = 0;
-  directionSelected: any;
   isSelectedDirection: boolean = false;
-  lastMarkerId?: string;
-  direction!: string;
-  markerShop: Marker = 
-      {
-        coordinate: {
-          lat: 4.66,
-          lng: -74.11
-        },
-        title: 'Tienda Principal'
-      }
-    ;
+  directionSelected: any;
 
   constructor(
     private productService: ProductService,
     private modalCtrl: ModalController,
-    private router: Router
+    private router: Router,
+    private loadingCtrl: LoadingController
   ) { }
 
   ngOnInit() {
-    this.productService.getCurrentOrder()
-    .subscribe({
-      next: (resp: Pedido) => {
-        this.currentOrder = resp;
+    this.loadDataPage();
+  }
+
+  async loadDataPage() {
+    await this.showLoading();
+    forkJoin([
+      this.productService.getCurrentOrder(),
+      this.productService.getPriceMinuteDelivery()
+    ]).subscribe({
+      next: responses => {
+        this.closeLoading();
+        this.currentOrder = responses[0];
         if(this.currentOrder) {
           this.total = this.currentOrder.items.reduce((total, item) => total + (item.product.price* item.amount), 0);
         }
+        this.basePriceKMByOrder = Number(responses[1].valor);
       },
-      error: (error) => {
+      error: error => {
+        this.closeLoading();
         alert(error.error.message);
       }
-    });
+    })
   }
+
+  handleRefresh(event: any) {
+    forkJoin([
+      this.productService.getCurrentOrder(),
+      this.productService.getPriceMinuteDelivery()
+    ]).subscribe({
+      next: responses => {
+        event.target.complete();
+        this.currentOrder = responses[0];
+        if(this.currentOrder) {
+          this.total = this.currentOrder.items.reduce((total, item) => total + (item.product.price* item.amount), 0);
+        }
+        this.basePriceKMByOrder = Number(responses[1].valor);
+      },
+      error: error => {
+        event.target.complete();
+        alert(error.error.message);
+      }
+    })
+  }
+
 
   onWillDismiss(event: Event) {
     const ev = event as CustomEvent<OverlayEventDetail<string>>;
@@ -70,23 +87,26 @@ export class MisPedidosPage implements OnInit {
     }
   }
 
-  cancelCaptureDirection() {
-    this.modal.dismiss(null, 'cancel');
-    this.newMap.destroy().then(()=>{
-      console.log("se destruyo");   
+  async selectDirection() {
+    const modal = await this.modalCtrl.create({
+      component: SelectDirectionComponent
     });
+    modal.present();
+
+    const { data, role } = await modal.onWillDismiss();
+
+    if (role === 'confirm') {
+      this.directionSelected = data;
+      this.aproveCaptureDirection(data);
+    }
   }
 
-  aproveCaptureDirection() {
-    if(!this.direction || !this.direction.trim().length) {
-      alert('Ingrese la dirección');
-      return;
-    }
+  aproveCaptureDirection(objDirection: any) {
     if(this.currentOrder) {
       this.isSelectedDirection = true;
-      let quantityMeters = this.haversine_distance(this.markerShop, this.directionSelected);
+      let quantityMeters = Math.ceil(objDirection.elementDistance.duration.value/60);
       let p:Product = {
-        id: 2,
+        id: 1,
         description: '',
         enabled: false,
         ingredients: [],
@@ -103,99 +123,41 @@ export class MisPedidosPage implements OnInit {
         valorUnitario: this.basePriceKMByOrder
       }
       this.currentOrder.items.push(item);
-      this.total += Number((quantityMeters * this.basePriceKMByOrder).toFixed(1));
-      this.currentOrder.latitude = this.directionSelected.coordinate.lat;
-      this.currentOrder.longitude = this.directionSelected.coordinate.lng;
-      this.currentOrder.direction = this.direction;
+      this.total += this.toFixed(quantityMeters, this.basePriceKMByOrder);
+      this.currentOrder.latitude = objDirection.lat;
+      this.currentOrder.longitude = objDirection.lng;
+      this.currentOrder.direction = objDirection.direction;
     }
-    this.modal.dismiss(null, 'confirm');
+  }
+
+  toFixed(amount: number, basePrice: number) {
+    return Number((amount * basePrice).toFixed(1));
   }
   
-  createMap() {
-    this.lastMarkerId = undefined;
-    GoogleMap.create({
-      id: 'my-cool-map',
-      element: this.mapRef.nativeElement,
-      apiKey: environment.apiKeyGoogleMaps,
-      config: {
-        center: {
-          lat: 4.66,
-          lng: -74.11,
-        },
-        zoom: 10,
-      },
-      forceCreate: true
-    }).then((map)=>{
-      this.newMap = map;
-      this.addMarkers();
-    }, (error) => {
-      alert(JSON.stringify(error));
-    });
-  }
-
-  async addMarkers() {
-    await this.newMap.addMarker(this.markerShop);
-    this.newMap.setOnMarkerClickListener(async(marker) =>{
-
-      const modal = await this.modalCtrl.create({
-        component: ConfirmDirectionComponent,
-        componentProps: {
-          marker,
-        },
-        breakpoints: [0, 0.3],
-        initialBreakpoint: 0.3,
-        backdropDismiss: false,
-        showBackdrop: false
-      });
-      modal.present();
-    });
-
-    await this.newMap.setOnMapClickListener(async(pointSelected) =>{
-      this.directionSelected = {
-        coordinate: {
-          lat: pointSelected.latitude,
-          lng: pointSelected.longitude
-        }
-      }
-      if(this.lastMarkerId) {
-        this.newMap.removeMarker(this.lastMarkerId).then(()=>{
-        },(reason) => {
-          console.log(reason);
-        });
-      }
-      this.lastMarkerId = await this.newMap.addMarker(this.directionSelected);
-    });
-  }
-
-  cancel() {
+  async cancel() {
+    await this.showLoading();
+    this.isSelectedDirection = false;
     if(this.currentOrder?.id) {
       this.productService.desabledOrder(this.currentOrder.id)
       .subscribe({
         next: (resp: any) => {
+          this.closeLoading();
           this.currentOrder = undefined;
+          alert('Orden cancelada');
         },
         error: (error) => {
+          this.closeLoading();
           alert(error.error.message);
         }
     });
     }
   }
 
-  haversine_distance(mk1:any, mk2:any) {
-    const distancia = GeoLocation.calculateDistance(
-      mk1.coordinate.lat, // Latitud del punto 1
-      mk1.coordinate.lng, // Longitud del punto 1
-      mk2.coordinate.lat, // Latitud del punto 2
-      mk2.coordinate.lng // Longitud del punto 2
-    );  
-    return Number(distancia.toFixed(2));
-  }
-
-  calculatePriceOrder(distance: number) {
-    return this.basePriceKMByOrder * distance;
-  }
-
   async confirm() {
+    if(!this.isSelectedDirection) {
+      alert('Por favor establezca la dirección');
+      return;
+    }
     if(this.currentOrder) {
       this.currentOrder.total = this.total;
       this.router.navigateByUrl('/back-office/pasarela-paypal', { state: {
@@ -204,5 +166,17 @@ export class MisPedidosPage implements OnInit {
     } else {
       alert('Debe seleccionar un pedido.');
     }
+  }
+
+  async showLoading() {
+    const loading = await this.loadingCtrl.create({
+      message: 'Cargando...',
+      id: 'loadId'
+    });
+    loading.present();
+  }
+
+  async closeLoading() {
+    return await this.loadingCtrl.dismiss('loadId');
   }
 }

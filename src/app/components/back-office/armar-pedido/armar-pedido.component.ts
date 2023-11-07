@@ -1,6 +1,7 @@
 import { Component, Input, OnInit } from '@angular/core';
 
-import { ModalController } from '@ionic/angular';
+import { LoadingController, ModalController } from '@ionic/angular';
+import { forkJoin } from 'rxjs';
 import { Ingredient } from 'src/app/models/ingredient';
 import { Pedido } from 'src/app/models/pedido';
 import { Product } from 'src/app/models/product';
@@ -15,7 +16,7 @@ export class ArmarPedidoComponent  implements OnInit {
 
   @Input() product!: Product;
   
-  cantidadPizzas: number = 0;
+  cantidadPizzas: number = 1;
 
   bebidas: Product[] = [];
   adicionales: Product[] = [];
@@ -25,73 +26,48 @@ export class ArmarPedidoComponent  implements OnInit {
 
   constructor(
     private modalCtrl: ModalController,
-    private productService: ProductService) {}
+    private productService: ProductService,
+    private loadingCtrl: LoadingController) {}
 
   ngOnInit() {
-    this.getAllDrinks();
-    this.getAlladditional();
     this.esPersonalizada = !this.product.ingredients || !this.product.ingredients.length;
-    if(this.esPersonalizada) {
-      this.getAllIngredients();
-    }
-    this.getCurrentProduct();  
+    this.getElements();
   }
 
-  getCurrentProduct() {
-    this.productService.getCurrentOrder()
-    .subscribe({
-      next: (resp: Pedido) => {
+  getElements() {
+    this.showLoading('Cargando...');
+    let list = [];
+    list[0] = this.productService.getAllDrinks();
+    list[1] = this.productService.getAlladditional();
+    list[2] = this.productService.getCurrentOrder();
+    if(this.esPersonalizada) {
+      list[3] = this.productService.getAllIngredients();
+    }
+    forkJoin(list).subscribe({
+      next: (responses: any) => {
+        this.closeLoading();
+        this.bebidas = responses[0];
+        this.adicionales = responses[1];
+        let resp = responses[2];
         if(resp !== null) {
           this.pedido.id = resp.id;
           this.pedido.dateOrder = resp.dateOrder;
           this.pedido.items = resp.items;
           this.pedido.enabled = resp.enabled;
         }
+        if(this.esPersonalizada) {
+          this.ingredients = responses[3];
+        }
       },
       error: (error) => {
-        alert(error.error.message);
+        this.closeLoading();
+        alert('Error al obtener la respuesta de los servicios.')
       }
-    });
-  }
-
-  getAllIngredients() {
-    this.productService.getAllIngredients()
-    .subscribe({
-      next: (resp: Ingredient[]) => {
-        this.ingredients = resp;
-      },
-      error: (error) => {
-        alert(error.error.message);
-      }
-    });
-  }
-
-  getAlladditional() {
-    this.productService.getAlladditional()
-    .subscribe({
-      next: (resp: Product[]) => {
-        this.adicionales = resp;
-      },
-      error: (error) => {
-        alert(error.error.message);
-      }
-    });
-  }
-
-  getAllDrinks() {
-    this.productService.getAllDrinks()
-    .subscribe({
-      next: (resp: Product[]) => {
-        this.bebidas = resp;
-      },
-      error: (error) => {
-        alert(error.error.message);
-      }
-    });
+    })
   }
 
   cancel() {
-    return this.modalCtrl.dismiss('cancel');
+    return this.modalCtrl.dismiss(null, 'cancel');
   }
 
   confirm() {
@@ -106,14 +82,28 @@ export class ArmarPedidoComponent  implements OnInit {
     this.adicionales.filter(a => a.selected).map(e=>{
       this.pedido.agregarItem(e, 1);
     });
-    
+    this.showLoading('Procesando...');
     this.productService.saveOrder(this.pedido).subscribe({
       next: (resp: any) => {
-        return this.modalCtrl.dismiss('confirm');
+        this.closeLoading();
+        return this.modalCtrl.dismiss(null, 'confirm');
       },
       error: (error) => {
+        this.closeLoading();
         alert(error.error.message);
       }
     });
+  }
+
+  async showLoading(message: string) {
+    const loading = await this.loadingCtrl.create({
+      message: message,
+      id: 'loadId'
+    });
+    loading.present();
+  }
+
+  async closeLoading() {
+    return await this.loadingCtrl.dismiss('loadId');
   }
 }

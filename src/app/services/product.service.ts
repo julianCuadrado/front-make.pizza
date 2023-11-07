@@ -52,4 +52,16 @@ export class ProductService {
   getBills(): Observable<any> {
     return this.http.get<any>(this.urlBase + 'bills');
   }
+
+  desabledBill(idBill: any): Observable<any> {
+    return this.http.put(this.urlBase+ 'bills?id='+idBill, {});
+  }
+
+  getConfigMapShop(): Observable<any> {
+    return this.http.get(this.urlBase + 'system-parameters/configuration-map-shop');
+  }
+
+  getPriceMinuteDelivery(): Observable<any> {
+    return this.http.get(this.urlBase + 'system-parameters/price-minute-delivery');
+  }
 }

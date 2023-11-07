@@ -13,7 +13,7 @@
     <ion-row *ngFor="let item of order?.items">
       <ion-col>{{item.amount}}</ion-col>
       <ion-col>{{item.product.name}}</ion-col>
-      <ion-col>{{item.product.price * item.amount | currency}}</ion-col>
+      <ion-col>{{ toFixed(item.product.price, item.amount) | currency}}</ion-col>
     </ion-row>
     <ion-row>
       <ion-col>Total</ion-col>

@@ -1,0 +1,33 @@
+<ion-content >
+  <div>
+    <h2>Selecciona tu ubicación</h2>
+  </div>
+  <div class="container-modal">
+    <div #map></div>
+  </div>
+  <div>
+    <ion-list>
+      <ion-item>
+        <ion-label>Distancia: {{ elementDistance?.distance }}</ion-label>
+      </ion-item>
+      <ion-item>
+        <ion-label>Tiempo: {{ elementDistance?.duration.text }}</ion-label>
+      </ion-item>
+      <ion-item>
+        <ion-textarea #textAreaDirection label="Especifique la dirección, ej: Torre, apto..." [(ngModel)]="direction" labelPlacement="floating"></ion-textarea>
+      </ion-item>
+    </ion-list>
+  </div>
+</ion-content>
+<ion-footer>
+  <ion-grid style="padding: 0 !important;">
+    <ion-row style="padding: 0 !important;">
+      <ion-col style="padding: 0 !important;">
+        <ion-button (click)="cancelCaptureDirection()" color="danger" expand="full">Cancelar</ion-button>
+      </ion-col>
+      <ion-col style="padding: 0 !important;">
+        <ion-button (click)="aproveCaptureDirection()" expand="full">Confirmar dirección</ion-button>      
+      </ion-col>
+    </ion-row>
+  </ion-grid>
+</ion-footer>

@@ -3,14 +3,71 @@
     <ion-buttons slot="start">
       <ion-menu-button></ion-menu-button>
     </ion-buttons>
-    <ion-title>pedidosPendientes</ion-title>
+    <ion-title>Pedidos Pendientes</ion-title>
   </ion-toolbar>
 </ion-header>
 
 <ion-content [fullscreen]="true">
+  <ion-refresher slot="fixed" (ionRefresh)="handleRefresh($event)">
+    <ion-refresher-content></ion-refresher-content>
+  </ion-refresher>
   <ion-list>
-    <ion-item *ngFor="let bill of bills">
-      <ion-label>{{ bill.id }} {{ bill.addressClient }}</ion-label>
+    <ion-item *ngFor="let bill of bills" (click)="selectBill(bill)">
+      <ion-label>Número pedido: {{ bill.id }}, Dirección: {{ bill.addressClient }}</ion-label>
     </ion-item>
   </ion-list>
+
+  <ion-modal [isOpen]="isModalOpen">
+    <ng-template>
+      <ion-header>
+        <ion-toolbar>
+          <ion-title>Detalle Pedido</ion-title>
+          <ion-buttons slot="end">
+            <ion-button (click)="closeDetailBill()">Cerrar</ion-button>
+          </ion-buttons>
+        </ion-toolbar>
+      </ion-header>
+      <ion-content class="ion-padding">
+        <h2>Ubicación pedido</h2>
+        <div class="container-modal">
+          <div #map></div>
+        </div>
+        <ion-card>
+          <ion-card-header>
+            Pedido #{{ selectedBill.id }}
+          </ion-card-header>
+      
+          <ion-card-content>
+            <p><strong>Fecha de la factura:</strong> {{ selectedBill.dateBill | date }}</p>
+            <p><strong>Total:</strong> ${{ selectedBill.total }}</p>
+            <p><strong>Cliente:</strong> {{ selectedBill.fullNameClient }}</p>
+            <p><strong>Dirección:</strong> {{ selectedBill.addressClient }}</p>
+      
+            <ion-list>
+              <ion-item *ngFor="let item of selectedBill.items">
+                <ion-label>
+                  <h2>{{ item.description }}</h2>
+                  <p>Cantidad: {{ item.amount }}</p>
+                  <p>Valor unitario: ${{ item.unitValue }}</p>
+                  <p>Total: ${{ item.totalValue }}</p>
+                </ion-label>
+              </ion-item>
+            </ion-list>
+          </ion-card-content>
+        </ion-card>
+      </ion-content>
+      <ion-footer>
+        <ion-grid style="padding: 0 !important;">
+          <ion-row style="padding: 0 !important;">
+            <ion-col style="padding: 0 !important;">
+              <ion-button (click)="closeDetailBill()" color="danger" expand="full">Cerrar</ion-button>
+            </ion-col>
+            <ion-col style="padding: 0 !important;">
+              <ion-button (click)="desabledBill()" expand="full">Realizar pedido</ion-button>      
+            </ion-col>
+          </ion-row>
+        </ion-grid>
+      </ion-footer>
+    </ng-template>
+  </ion-modal>
 </ion-content>

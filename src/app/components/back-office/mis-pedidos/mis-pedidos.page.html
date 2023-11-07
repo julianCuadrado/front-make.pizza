@@ -8,6 +8,9 @@
 </ion-header>
 
 <ion-content [fullscreen]="true">
+  <ion-refresher slot="fixed" (ionRefresh)="handleRefresh($event)">
+    <ion-refresher-content></ion-refresher-content>
+  </ion-refresher>
   <ion-grid *ngIf="currentOrder">
     <ion-row>
       <ion-col>Cantidad</ion-col>
@@ -15,64 +18,15 @@
       <ion-col>Valor</ion-col>
     </ion-row>
     <ion-row *ngFor="let item of currentOrder?.items">
-      <ion-col>{{item.amount}}</ion-col>
-      <ion-col>{{item.product.name}}</ion-col>
-      <ion-col>{{item.product.price * item.amount | currency}}</ion-col>
+      <ion-col>{{ item.amount }}</ion-col>
+      <ion-col>{{ item.product.name }}</ion-col>
+      <ion-col>{{ toFixed(item.product.price, item.amount) | currency }}</ion-col>
     </ion-row>
   </ion-grid>
-  <ion-button *ngIf="!isSelectedDirection" id="open-modal" expand="full">Establecer dirección</ion-button>      
-  <div *ngIf="isSelectedDirection">
-    <p>Dirección Domicilio</p>
-    <p>
-      Latitud: {{directionSelected?.coordinate?.lat}}
-    </p>
-    <p>
-      Longitude: {{directionSelected?.coordinate?.lng}}
-    </p>
+  <ion-button *ngIf="currentOrder && !isSelectedDirection" (click)="selectDirection()" expand="full">Establecer dirección</ion-button>      
+  <div *ngIf="currentOrder && isSelectedDirection">
+    <p>Dirección Domicilio: {{ directionSelected?.direction }}</p>
   </div>
-  <ion-modal #modal trigger="open-modal" (didPresent)="createMap()" (willDismiss)="onWillDismiss($event)">
-    <ng-template>
-      <ion-header>
-        <ion-toolbar>
-          <ion-title>Modal</ion-title>
-        </ion-toolbar>
-      </ion-header>
-      <ion-content class="ion-padding">
-        <div class="container-modal">
-          <capacitor-google-map #map></capacitor-google-map>
-        </div>
-        <div>
-          <p>
-            Latitud: {{directionSelected?.coordinate?.lat}}
-          </p>
-          <p>
-            Longitude: {{directionSelected?.coordinate?.lng}}
-          </p>
-          <div>
-            <ion-list>
-              <ion-item>
-                <ion-textarea label="Dirección" [(ngModel)]="direction" labelPlacement="floating" placeholder="Ingresa la dirección completa"></ion-textarea>
-              </ion-item>
-            </ion-list>
-          </div>
-        </div>
-      </ion-content>
-      <ion-footer>
-        <ion-grid style="padding: 0 !important;">
-          <ion-row style="padding: 0 !important;">
-            <ion-col style="padding: 0 !important;">
-              <ion-button (click)="cancelCaptureDirection()" color="danger" expand="full">Cancelar</ion-button>
-            </ion-col>
-            <ion-col style="padding: 0 !important;">
-              <ion-button (click)="aproveCaptureDirection()" expand="full">Confirmar dirección</ion-button>      
-            </ion-col>
-          </ion-row>
-        </ion-grid>
-      </ion-footer>
-    </ng-template>
-  </ion-modal>
-
-
 
 </ion-content>
 <ion-footer *ngIf="currentOrder">

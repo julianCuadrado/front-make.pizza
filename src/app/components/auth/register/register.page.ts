@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
+import { LoadingController } from '@ionic/angular';
 import { TokenService } from 'src/app/services/token.service';
 import { UserService } from 'src/app/services/user.service';
 
@@ -15,7 +16,8 @@ export class RegisterPage implements OnInit {
   constructor(
     public formBuilder: FormBuilder,
     public userService: UserService,
-    public tokenService: TokenService) { }
+    public tokenService: TokenService,
+    private loadingCtrl: LoadingController) { }
 
   ngOnInit() {
     this.formUser = this.formBuilder.group({
@@ -37,18 +39,32 @@ export class RegisterPage implements OnInit {
     return this.formUser.controls;
   }
 
-  saveUser() {
+  async saveUser() {
     if (this.formUser.valid) {
+      await this.showLoading();
       this.userService.saveUser(this.formUser.value)
       .subscribe({
         next: (resp: any) => {
+          this.closeLoading();
           this.tokenService.login(resp.jwt);
         },
         error: (error) => {
+          this.closeLoading();
           console.log(error);
         }
       });
     }
   };
 
+  async showLoading() {
+    const loading = await this.loadingCtrl.create({
+      message: 'Procesando...',
+      id: 'loadId'
+    });
+    loading.present();
+  }
+
+  async closeLoading() {
+    return await this.loadingCtrl.dismiss('loadId');
+  }
 }
