@@ -57,3 +57,11 @@ ion-alert.custom-alert {
   .md button.alert-button.alert-button-confirm, button.alert-button.alert-button-cancel {
     border-radius: 4px;
   }  
+
+  .contenedor-centrado {
+    margin-top: 10px;
+    margin-bottom: 10px;
+    display: flex;
+    justify-content: center; /* Centra horizontalmente */
+    align-items: center;     /* Centra verticalmente */
+  }

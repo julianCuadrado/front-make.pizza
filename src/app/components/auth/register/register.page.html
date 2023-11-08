@@ -8,6 +8,9 @@
 </ion-header>
 
 <ion-content>
+  <div class="contenedor-centrado">
+    <ion-img src="assets/escudo.png" style="width: fit-content; height: fit-content;"></ion-img>
+  </div>
   <form [formGroup]="formUser" (ngSubmit)="saveUser()" novalidate>
     <ion-item lines="full">
       <ion-label position="floating">Nombre</ion-label>
@@ -27,7 +30,7 @@
         color="danger"
         *ngIf="this.formUser.controls['name'].errors?.['minlength']"
       >
-        <ion-text color="danger">Minimo 2 caracteres.</ion-text>
+        <ion-text color="danger">Minimo 5 caracteres.</ion-text>
       </div>
     </div>
 
